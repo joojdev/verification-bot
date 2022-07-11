@@ -1,4 +1,7 @@
 const { MessageButton, MessageActionRow } = require('discord.js')
+
+const returnImageBuffer = require('./image')
+
 const { roleId } = require('./config')
 
 async function handleSlashCommands(interaction) {
@@ -12,7 +15,7 @@ async function handleSlashCommands(interaction) {
       const { id: userId } = interaction.user
       const isVerified = interaction.member.roles.cache.has(roleId)
       
-      if (isVerified) return await interaction.reply('You\'re already verified!')
+      if (isVerified) return await interaction.reply('*You\'re already verified!*')
       
       function getRandomNumber(length) {
         const randomNumber = String(Math.floor(Math.random() * Number(Array(length).fill(9).join``)))
@@ -22,6 +25,7 @@ async function handleSlashCommands(interaction) {
       }
       
       const password = getRandomNumber(6)
+      const imageBuffer = await returnImageBuffer(password).toBuffer()
 
       let buttonArray = [
         new MessageButton()
@@ -42,21 +46,21 @@ async function handleSlashCommands(interaction) {
       const row = new MessageActionRow()
         .addComponents(...buttonArray)
 
-      await interaction.reply({ content: `Press the button with the following password: *${password}*`, components: [row] })
+      await interaction.reply({ content: '*Press the button with the following password:*', components: [row], files: [imageBuffer] })
 
       const filter = (buttonClick) => buttonClick.user.id == userId
       const collector = interaction.channel.createMessageComponentCollector({ filter, time: 5000 })
 
       collector.on('collect', async (buttonClick) => {
         collector.stop()
-        if (buttonClick.customId != 'correct') return await buttonClick.update({ content: '*Wrong password, try again!*', components: [] })
-        await buttonClick.update({ content: '*Congratulations, you\'ve passed the test!*', components: [] })
+        if (buttonClick.customId != 'correct') return await buttonClick.update({ content: '*Wrong password, try again!*', components: [], files: [] })
+        await buttonClick.update({ content: '*Congratulations, you\'ve passed the test!*', components: [], files: [] })
         interaction.member.roles.add(roleId)
       })
 
       collector.on('end', (_collected, reason) => {
         if (reason == 'time') {
-          interaction.editReply({ content: '*You need to be faster than that!*', components: [] })
+          interaction.editReply({ content: '*You need to be faster than that!*', components: [], files: [] })
         }
       })
       break

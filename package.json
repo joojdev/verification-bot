@@ -22,7 +22,8 @@
     "@discordjs/rest": "^0.5.0",
     "chalk": "^4.1.2",
     "discord-api-types": "^0.36.1",
-    "discord.js": "^13.8.1"
+    "discord.js": "^13.8.1",
+    "sharp": "^0.30.7"
   },
   "devDependencies": {
     "dotenv": "^16.0.1",
